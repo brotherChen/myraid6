@@ -169,7 +169,12 @@ func buildMatrix(dataShards, totalShards int) (matrix, error) {
 	// Start with a Vandermonde matrix.  This matrix would work,
 	// in theory, but doesn't have the property that the data
 	// shards are unchanged after encoding.
-	vm, err := vandermonde(totalShards, dataShards)
+	// 实现的是raid6，所以只支持俩个校验块
+	if dataShards+1 != totalShards {
+		return nil, errors.New("internal error")
+	}
+
+	result, err := newMatrix(totalShards, dataShards)
 	if err != nil {
 		return nil, err
 	}
@@ -178,17 +183,23 @@ func buildMatrix(dataShards, totalShards int) (matrix, error) {
 	// This will make the top square be the identity matrix, but
 	// preserve the property that any square subset of rows is
 	// invertible.
-	top, err := vm.SubMatrix(0, 0, dataShards, dataShards)
-	if err != nil {
-		return nil, err
+	for r, row := range result {
+		// The top portion of the matrix is the identity
+		// matrix.
+		if r < dataShards {
+			result[r][r] = 1
+		} else if r < dataShards + 1{
+			// Set all values to 1 (XOR)
+			for c := range row {
+				result[r][c] = 1
+			}
+		} else {
+			for c := range row{
+				result[r][c] = galExp(byte(r), 1)
+			}
+		}
 	}
-
-	topInv, err := top.Invert()
-	if err != nil {
-		return nil, err
-	}
-
-	return vm.Multiply(topInv)
+	return result, nil
 }
 
 // buildMatrixPAR1 creates the matrix to use for encoding according to
