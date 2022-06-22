@@ -1,4 +1,4 @@
-module github.com/klauspost/reedsolomon
+module github.com/brotherchen/myraid6
 
 go 1.15
 
