@@ -202,7 +202,7 @@ func buildMatrix(dataShards, totalShards int) (matrix, error) {
 			}
 		} else {
 			for c := range row{
-				result[r][c] = galExp(byte(r), 1)
+				result[r][c] = byte(c + 1)
 			}
 		}
 	}
