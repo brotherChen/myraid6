@@ -171,7 +171,11 @@ func buildMatrix(dataShards, totalShards int) (matrix, error) {
 	// shards are unchanged after encoding.
 	// 实现的是raid6，所以只支持俩个校验块
 	if dataShards+2 != totalShards {
-		return nil, errors.New("internal error")
+		if dataShards + 3 == totalShards{
+			return nil, errors.New("3 error")
+		}else if dataShards + 4 == totalShards{
+			return nil, errors.New("4 error")
+		}
 	}
 
 	result, err := newMatrix(totalShards, dataShards)
