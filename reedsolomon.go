@@ -175,7 +175,10 @@ func buildMatrix(dataShards, totalShards int) (matrix, error) {
 			return nil, errors.New("3 error")
 		}else if dataShards + 4 == totalShards{
 			return nil, errors.New("4 error")
+		}else if dataShards + 5 == totalShards{
+			return nil, errors.New("5 error")
 		}
+		 
 	}
 
 	result, err := newMatrix(totalShards, dataShards)
