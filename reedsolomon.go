@@ -171,14 +171,7 @@ func buildMatrix(dataShards, totalShards int) (matrix, error) {
 	// shards are unchanged after encoding.
 	// 实现的是raid6，所以只支持俩个校验块
 	if dataShards+2 != totalShards {
-		if dataShards + 3 == totalShards{
-			return nil, errors.New("3 error")
-		}else if dataShards + 4 == totalShards{
-			return nil, errors.New("4 error")
-		}else if dataShards + 5 == totalShards{
-			return nil, errors.New("5 error")
-		}
-		 
+			return nil, errors.New("only 2 is supported")		 
 	}
 
 	result, err := newMatrix(totalShards, dataShards)
@@ -186,17 +179,12 @@ func buildMatrix(dataShards, totalShards int) (matrix, error) {
 		return nil, err
 	}
 
-	// Multiply by the inverse of the top square of the matrix.
-	// This will make the top square be the identity matrix, but
-	// preserve the property that any square subset of rows is
-	// invertible.
+	//范德蒙矩阵的形式
 	for r, row := range result {
-		// The top portion of the matrix is the identity
-		// matrix.
+		// 先生成单位矩阵
 		if r < dataShards {
 			result[r][r] = 1
 		} else if r < dataShards + 1{
-			// Set all values to 1 (XOR)
 			for c := range row {
 				result[r][c] = 1
 			}
@@ -206,6 +194,19 @@ func buildMatrix(dataShards, totalShards int) (matrix, error) {
 			}
 		}
 	}
+
+	/*柯西矩阵的形式
+	for r, row := range result {
+		// 先生成单位矩阵
+		if r < dataShards {
+				result[r][r] = 1
+			} else {
+				for c := range row {
+					result[r][c] = invTable[(byte(r ^ c))] //p=2时加法相当于异或，查表获得逆元的值
+				}
+			}
+	}
+	*/
 	return result, nil
 }
 
